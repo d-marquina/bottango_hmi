@@ -11,12 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
   usb_serial: ^0.5.2
-  file_picker: ^8.1.2
+  # 8.0.x: la línea 8.1+ exige Dart >=3.4; Flutter 3.19.6 trae Dart 3.3.4.
+  file_picker: ^8.0.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
