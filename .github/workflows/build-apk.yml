@@ -1,0 +1,57 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # permite lanzarlo a mano desde la pestaña Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # Guardamos nuestro código antes de generar el andamiaje Android,
+      # porque `flutter create` puede sobrescribir lib/ y pubspec.yaml.
+      - name: Preservar nuestro código
+        run: |
+          mkdir -p /tmp/keep
+          cp -r lib pubspec.yaml test /tmp/keep/
+
+      - name: Generar andamiaje Android
+        run: flutter create --platforms=android --project-name bottango_hmi --org com.bottango .
+
+      - name: Restaurar nuestro código
+        run: |
+          rm -rf lib pubspec.yaml test
+          cp -r /tmp/keep/lib lib
+          cp /tmp/keep/pubspec.yaml pubspec.yaml
+          cp -r /tmp/keep/test test
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Pruebas (sin hardware)
+        run: flutter test
+
+      - name: Compilar APK
+        run: flutter build apk --release
+
+      - name: Publicar APK como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bottango-hmi-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
