@@ -19,8 +19,12 @@ jobs:
           java-version: '17'
 
       - name: Configurar Flutter
+        # Versión fijada a propósito: el plugin usb_serial (0.5.2) usa Gradle
+        # antiguo (jcenter) y NO es compatible con AGP 9 del Flutter más reciente.
+        # 3.19.6 usa AGP 7 y compila usb_serial sin problemas.
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.19.6'
           channel: stable
 
       # Guardamos nuestro código antes de generar el andamiaje Android,
